@@ -101,8 +101,8 @@ class MixStyleTransferModel(torch.nn.Module):
             
             # adjust left and right embeds to be more distinct
             distance_embed = left_embed - right_embed
-            left_embed = left_embed + 0.5 * distance_embed
-            right_embed = right_embed - 0.5 * distance_embed
+            left_embed = left_embed + 5 * distance_embed
+            right_embed = right_embed - 5 * distance_embed
 
             if is_panning:
                 text_embed = [
