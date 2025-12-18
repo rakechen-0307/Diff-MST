@@ -47,6 +47,9 @@ def process_input(filepath):
         audio = resampler(audio)
         sr = 44100
     
+    if audio.shape[0] ==1:  # mono to stereo
+        audio = audio.repeat(2, 1)
+    
     return audio, sr
 
 def audio_control(
@@ -86,6 +89,10 @@ def audio_control(
                 if i not in tracks_idx:
                     tracks_idx.append(i)
                 lengths.append(seq_len)
+    
+    left_channels = [track for idx, track in enumerate(raw_tracks) if idx % 2 == 0]
+    right_channels = [track for idx, track in enumerate(raw_tracks) if idx % 2 == 1]
+    raw_tracks = left_channels + right_channels
 
     if len(raw_tracks) == 0:
         raise ValueError("At least one raw track must be provided.")
@@ -216,6 +223,9 @@ def text_control(
                 if i not in tracks_idx:
                     tracks_idx.append(i)
                 lengths.append(seq_len)
+    left_channels = [track for idx, track in enumerate(raw_tracks) if idx % 2 == 0]
+    right_channels = [track for idx, track in enumerate(raw_tracks) if idx % 2 == 1]
+    raw_tracks = left_channels + right_channels
 
     if len(raw_tracks) == 0:
         raise ValueError("At least one raw track must be provided.")
