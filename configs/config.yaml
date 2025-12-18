@@ -5,7 +5,7 @@ trainer:
   logger: 
     class_path: pytorch_lightning.loggers.WandbLogger
     init_args:
-      project: DiffMST_dualCLAP_new
+      project: DiffMST_dualCLAP
       # change to the directory where you want to save wandb logs
       save_dir: /mnt/gestalt/home/rakec/output/diff-mst/dual-clap/stage1
   enable_checkpointing: true

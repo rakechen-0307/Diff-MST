@@ -101,13 +101,13 @@ class MixStyleTransferModel(torch.nn.Module):
             
             # adjust left and right embeds to be more distinct
             distance_embed = left_embed - right_embed
-            left_embed = left_embed + 0.5 * distance_embed
-            right_embed = right_embed - 0.5 * distance_embed
+            left_embed = left_embed + 5.0 * distance_embed
+            right_embed = right_embed - 5.0 * distance_embed
 
             if is_panning:
                 text_embed = [
-                    linear_interpolation(left_embed, right_embed, text_alpha),
-                    linear_interpolation(left_embed, right_embed, 1 - text_alpha)
+                    linear_interpolation(left_embed, right_embed, 1 - style_alpha),
+                    linear_interpolation(left_embed, right_embed, style_alpha)
                 ]
 
                 track_idx = track_idx if track_idx >= 0 else 0
@@ -115,16 +115,16 @@ class MixStyleTransferModel(torch.nn.Module):
 
                 for i in range(2):
                     mix_embeds_selected = mix_embeds[0, track_idx + i * num_tracks_mix, :]  # select the embed for the specified track
-                    mix_embeds[0, track_idx + i * num_tracks_mix, :] = linear_interpolation(mix_embeds_selected, text_embed[i], style_alpha)
+                    mix_embeds[0, track_idx + i * num_tracks_mix, :] = linear_interpolation(mix_embeds_selected, text_embed[i], text_alpha)
             else:
-                text_embed = linear_interpolation(left_embed, right_embed, text_alpha)
+                text_embed = linear_interpolation(left_embed, right_embed, style_alpha)
 
                 track_idx = track_idx if track_idx >= 0 else 0
                 num_tracks_mix = mix_embeds.size(1) // 2
 
                 for i in range(2):
                     mix_embeds_selected = mix_embeds[0, track_idx + i * num_tracks_mix, :]  # select the embed for the specified track
-                    mix_embeds[0, track_idx + i * num_tracks_mix, :] = linear_interpolation(mix_embeds_selected, text_embed, style_alpha)
+                    mix_embeds[0, track_idx + i * num_tracks_mix, :] = linear_interpolation(mix_embeds_selected, text_embed, text_alpha)
 
         # controller will predict mix parameters for each stem based on embeds
         track_params, fx_bus_params, master_bus_params = self.controller(

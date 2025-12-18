@@ -10,7 +10,7 @@ meter = pyln.Meter(44100)
 method = {
     "model": load_diffmst(
         config_path="./test/naive.yaml",
-        ckpt_path="/mnt/gestalt/home/rakec/output/diff-mst/dual-clap/stage1-tune/DiffMST_dualCLAP_new/cwhdk8cr/checkpoints/epoch=47-step=15024.ckpt",
+        ckpt_path="/mnt/gestalt/home/rakec/output/diff-mst/dual-clap/stage2-tune/DiffMST_dualCLAP_new/hkg4be9t/checkpoints/epoch=71-step=22536.ckpt",
     ),
     "func": run_diffmst
 }
@@ -76,6 +76,9 @@ def audio_control(
         if file is not None:
             audio, sr = process_input(file)
             assert sr == 44100, "All audio files must have a sample rate of 44.1kHz."
+
+            if audio.shape[0] == 2:
+                audio = audio.mean(dim=0)
 
             chs, seq_len = audio.shape
             for ch_idx in range(chs):
@@ -204,6 +207,9 @@ def text_control(
             audio, sr = process_input(file)
             assert sr == 44100, "All audio files must have a sample rate of 44.1kHz."
 
+            if audio.shape[0] == 2:
+                audio = audio.mean(dim=0)
+
             chs, seq_len = audio.shape
             for ch_idx in range(chs):
                 raw_tracks.append(audio[ch_idx : ch_idx + 1, :])
@@ -224,16 +230,16 @@ def text_control(
     raw_tracks = raw_tracks.view(1, -1, max_length)
 
     if modified_style == "Brightness":
-        left_text = "the audio sounds extremely dark"
-        right_text = "the audio sounds extremely bright"
+        left_text = "the audio is muffled"
+        right_text = "the audio is bright"
     
     elif modified_style == "Punchy":
-        left_text = "the sound is extremely flat"
-        right_text = "the sound is extremely punchy"
+        left_text = "the sound is flat"
+        right_text = "the sound is punchy"
     
     elif modified_style == "Loudness" or modified_style == "Panning":
-        left_text = "the sound is extremely quiet"
-        right_text = "the sound is extremely loud"
+        left_text = "the volume of the sound is low"
+        right_text = "the volume of the sound is high"
     
     text_alpha = text_strength / 100.0
     style_alpha = style_strength / 100.0
